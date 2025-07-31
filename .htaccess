@@ -1,0 +1,125 @@
+# ====================================
+# Portal Librería Online - .htaccess
+# ====================================
+
+# Habilitar el motor de reescritura
+RewriteEngine On
+
+# Página de inicio por defecto
+DirectoryIndex index.php
+
+# ====================================
+# SEGURIDAD
+# ====================================
+
+# Proteger archivos de configuración
+<Files "*.db">
+    Require all denied
+</Files>
+
+<Files "config/*">
+    Require all denied
+</Files>
+
+# Ocultar archivos .htaccess
+<Files ".htaccess">
+    Require all denied
+</Files>
+
+# Prevenir acceso a directorios
+Options -Indexes
+
+# Bloquear acceso a archivos sensibles
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+
+# ====================================
+# URLS AMIGABLES
+# ====================================
+
+# Redirigir libros.php a /libros
+RewriteRule ^libros/?$ libros.php [L]
+
+# Redirigir autores.php a /autores
+RewriteRule ^autores/?$ autores.php [L]
+
+# Redirigir contacto.php a /contacto  
+RewriteRule ^contacto/?$ contacto.php [L]
+
+# Redirigir autor específico (futuro)
+RewriteRule ^autor/([0-9]+)/?$ autores.php?id=$1 [L]
+
+# ====================================
+# RENDIMIENTO
+# ====================================
+
+# Comprimir archivos
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/xml
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE application/xml
+    AddOutputFilterByType DEFLATE application/xhtml+xml
+    AddOutputFilterByType DEFLATE application/rss+xml
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/x-javascript
+    AddOutputFilterByType DEFLATE application/json
+</IfModule>
+
+# Cache para archivos estáticos
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+    ExpiresByType text/javascript "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType application/pdf "access plus 1 month"
+    ExpiresByType text/html "access plus 1 hour"
+</IfModule>
+
+# Headers de cache para mejor rendimiento
+<IfModule mod_headers.c>
+    # Cache para CSS y JS
+    <FilesMatch "\.(css|js)$">
+        Header set Cache-Control "max-age=31536000, public"
+    </FilesMatch>
+    
+    # Cache para imágenes
+    <FilesMatch "\.(png|jpg|jpeg|gif|svg)$">
+        Header set Cache-Control "max-age=31536000, public"
+    </FilesMatch>
+    
+    # Seguridad adicional
+    Header always set X-Content-Type-Options nosniff
+    Header always set X-Frame-Options DENY
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# ====================================
+# ERRORES PERSONALIZADOS
+# ====================================
+
+# Páginas de error personalizadas
+ErrorDocument 404 /404.php
+ErrorDocument 403 /403.php
+ErrorDocument 500 /500.php
+
+# ====================================
+# CONFIGURACIÓN ADICIONAL
+# ====================================
+
+# Forzar UTF-8
+AddDefaultCharset UTF-8
+
+# Prevenir hotlinking de imágenes - Configurado para localhost:8080
+RewriteCond %{HTTP_REFERER} !^$
+RewriteCond %{HTTP_REFERER} !^http(s)?://localhost:8080 [NC]
+RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)?google\.com [NC]
+RewriteRule \.(jpg|jpeg|png|gif)$ - [NC,F,L]
